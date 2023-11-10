@@ -45,8 +45,10 @@ public class AuthController {
       )
     );
     SecurityContextHolder.getContext().setAuthentication(authentication);
+    String userId = userRepository.findByEmail(loginDTO.getEmail())
+      .orElse(null).getId();
     AuthorizationDTO authorization = AuthorizationDTO.builder()
-      .accessToken(tokenProvider.create(loginDTO.getEmail()))
+      .accessToken(tokenProvider.create(userId))
       .build();
     return ResponseEntity.ok(authorization);
   }

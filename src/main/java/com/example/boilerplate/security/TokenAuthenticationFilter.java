@@ -1,5 +1,7 @@
 package com.example.boilerplate.security;
 
+import com.example.boilerplate.exception.ResourceNotFoundException;
+import com.example.boilerplate.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -22,6 +24,7 @@ import java.util.ArrayList;
 public class TokenAuthenticationFilter extends OncePerRequestFilter {
 
   private final TokenProvider tokenProvider;
+  private final UserRepository userRepository;
 
   @Override
   protected void doFilterInternal(
@@ -32,7 +35,8 @@ public class TokenAuthenticationFilter extends OncePerRequestFilter {
     try {
       String jwt = getJwtFromRequest(request);
       if (StringUtils.hasText(jwt) && tokenProvider.validate(jwt)) {
-        String username = tokenProvider.getUsername(jwt);
+        String username = userRepository.findById(tokenProvider.getUserId(jwt))
+          .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + tokenProvider.getUserId(jwt))).getEmail();
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(username, null, new ArrayList<>());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);

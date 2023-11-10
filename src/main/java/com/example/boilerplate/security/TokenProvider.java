@@ -25,16 +25,16 @@ public class TokenProvider {
     this.signAlgorithm = Algorithm.HMAC512(appProperties.getAuth().tokenSecret());
   }
 
-  public String create(String email) {
+  public String create(String id) {
     Date now = new Date();
     Date expiryDate = new Date(now.getTime() + appProperties.getAuth().tokenExpirationMsec());
     String token = null;
     try {
       token = JWT.create()
-        .withSubject(email)
+        .withIssuer(appProperties.getAuth().issuer())
         .withIssuedAt(now)
         .withExpiresAt(expiryDate) // TODO Set expiration date
-        .withIssuer(appProperties.getAuth().issuer())
+        .withClaim("usr", id)
         .sign(signAlgorithm);
     } catch (JWTCreationException exception) {
       log.error("Claims couldn't be converted to JSON.");
@@ -46,12 +46,11 @@ public class TokenProvider {
     try {
       JWTVerifier verifier = JWT.require(signAlgorithm)
         .withIssuer(appProperties.getAuth().issuer())
+        .withClaimPresence("iat")
+        .withClaimPresence("exp")
+        .withClaimPresence("usr")
         .build();
-      DecodedJWT decodedJWT = verifier.verify(token);
-      if (decodedJWT.getExpiresAt().before(new Date())) {
-        log.error("Token has expired.");
-        return false;
-      }
+      verifier.verify(token);
       return true;
     } catch (JWTVerificationException exception) {
       log.error("Invalid token.");
@@ -59,15 +58,14 @@ public class TokenProvider {
     return false;
   }
 
-  public String getUsername(String token) {
+  public String getUserId(String token) {
     DecodedJWT jwt = null;
     try {
       jwt = JWT.decode(token);
     } catch (JWTDecodeException exception) {
       log.error("Invalid token.");
-
     }
-    return jwt.getSubject();
+    return jwt.getClaim("usr").asString();
   }
 
 }
