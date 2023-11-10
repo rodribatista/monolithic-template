@@ -1,29 +1,27 @@
 package com.example.boilerplate.security;
 
+import com.example.boilerplate.models.UserEntity;
+import com.example.boilerplate.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.User;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Map;
 
 @AllArgsConstructor
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-  private final PasswordEncoder passwordEncoder;
+  private final UserRepository userRepository;
 
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-    Map<String, String> users = Map.of("test@mail.com", passwordEncoder.encode("password"));
-    if (!users.containsKey(email)) {
-      throw new UsernameNotFoundException(String.format("User not found with email: %s", email));
-    }
-    return new User(email, users.get(email), new ArrayList<>());
+    UserEntity user = userRepository.findByEmail(email).orElseThrow(
+      () -> new UsernameNotFoundException(String.format("User not found with email: %s", email)));
+    return new User(user.getEmail(), user.getPassword(), new ArrayList<>());
   }
 
 }
