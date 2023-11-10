@@ -44,6 +44,17 @@ public class GlobalExceptionHandler {
           .requestMethod(req.getMethod())
           .requestUrl(String.valueOf(req.getRequestURL()))
           .build());
+    } else if (e instanceof ResourceNotFoundException){
+      log.error("{} Resource not found exception: {}", referenceCode, e.getMessage());
+      return new ResponseEntity<>(
+        ErrorDTO.builder()
+          .referenceCode(referenceCode)
+          .status(HttpStatus.NOT_FOUND.name())
+          .statusCode(HttpStatus.NOT_FOUND.value())
+          .message(e.getMessage())
+          .requestMethod(req.getMethod())
+          .requestUrl(String.valueOf(req.getRequestURL()))
+          .build(), HttpStatus.NOT_FOUND);
     }
     log.error("{} Internal server error: {}", referenceCode, e.getMessage());
     return ResponseEntity.internalServerError().body(
