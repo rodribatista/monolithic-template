@@ -41,11 +41,16 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
+      .cors()
+      .and()
       .csrf().disable()
-      .authorizeRequests().antMatchers("/auth/**").permitAll()
-      .anyRequest().authenticated()
-      .and().sessionManagement()
-      .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+      .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      .and()
+      .formLogin().disable()
+      .httpBasic().disable()
+      .authorizeRequests()
+      .antMatchers("/auth/**").permitAll()
+      .anyRequest().authenticated();
     http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
