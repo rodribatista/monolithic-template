@@ -7,7 +7,7 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 
 @SpringBootApplication
-public class MonolithBoilerplateApplication {
+public class MonolithicApplication {
 
   @Bean
   public PasswordEncoder passwordEncoder() {
@@ -15,7 +15,7 @@ public class MonolithBoilerplateApplication {
   }
 
   public static void main(String[] args) {
-    SpringApplication.run(MonolithBoilerplateApplication.class, args);
+    SpringApplication.run(MonolithicApplication.class, args);
   }
 
 }

@@ -11,10 +11,10 @@
   </parent>
 
   <groupId>com.example</groupId>
-  <artifactId>monolith-boilerplate</artifactId>
+  <artifactId>monolithic-template</artifactId>
   <version>0.0.1</version>
-  <name>monolith-boilerplate</name>
-  <description>monolith-boilerplate</description>
+  <name>monolithic-template</name>
+  <description>Monolithic application template based on Spring Boot Framework</description>
 
   <properties>
     <java.version>17</java.version>
