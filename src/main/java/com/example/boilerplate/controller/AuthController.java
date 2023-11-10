@@ -22,8 +22,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/auth")
 public class AuthController {
 
-  private AuthenticationManager authenticationManager;
-  private TokenProvider tokenProvider;
+  private final AuthenticationManager authenticationManager;
+  private final TokenProvider tokenProvider;
 
   @PostMapping("/login")
   public ResponseEntity<?> authUser(@Valid @RequestBody LoginDTO loginDTO) {

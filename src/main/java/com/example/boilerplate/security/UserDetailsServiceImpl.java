@@ -15,7 +15,7 @@ import java.util.Map;
 @Service
 public class UserDetailsServiceImpl implements UserDetailsService {
 
-  private PasswordEncoder passwordEncoder;
+  private final PasswordEncoder passwordEncoder;
 
   @Override
   public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {

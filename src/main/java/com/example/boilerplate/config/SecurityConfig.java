@@ -1,5 +1,6 @@
 package com.example.boilerplate.config;
 
+import com.example.boilerplate.security.TokenAuthenticationFilter;
 import com.example.boilerplate.security.UserDetailsServiceImpl;
 import lombok.AllArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -14,14 +15,16 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @AllArgsConstructor
 @Configuration
 @EnableWebSecurity
 public class SecurityConfig {
 
-  private UserDetailsServiceImpl userDetailsService;
-  private PasswordEncoder passwordEncoder;
+  private final UserDetailsServiceImpl userDetailsService;
+  private final PasswordEncoder passwordEncoder;
+  private final TokenAuthenticationFilter tokenAuthenticationFilter;
 
   @Bean(BeanIds.AUTHENTICATION_MANAGER)
   public AuthenticationManager authenticationManager(
@@ -43,6 +46,7 @@ public class SecurityConfig {
       .anyRequest().authenticated()
       .and().sessionManagement()
       .sessionCreationPolicy(SessionCreationPolicy.STATELESS);
+    http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }
 
