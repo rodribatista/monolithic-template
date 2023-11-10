@@ -5,7 +5,6 @@ import com.example.boilerplate.dto.AuthorizationDTO;
 import com.example.boilerplate.dto.LoginDTO;
 import com.example.boilerplate.dto.SignUpDTO;
 import com.example.boilerplate.exception.BadRequestException;
-import com.example.boilerplate.exception.InternalServerException;
 import com.example.boilerplate.models.UserEntity;
 import com.example.boilerplate.repository.UserRepository;
 import com.example.boilerplate.security.TokenProvider;
@@ -38,7 +37,7 @@ public class AuthController {
   private final PasswordEncoder passwordEncoder;
 
   @PostMapping("/login")
-  public ResponseEntity<?> authUser(@Valid @RequestBody LoginDTO loginDTO) {
+  public ResponseEntity<AuthorizationDTO> authUser(@Valid @RequestBody LoginDTO loginDTO) {
     Authentication authentication = authenticationManager.authenticate(
       new UsernamePasswordAuthenticationToken(
         loginDTO.getEmail(),
@@ -53,7 +52,7 @@ public class AuthController {
   }
 
   @PostMapping("/signup")
-  public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpDTO signUpDTO) {
+  public ResponseEntity<ApiResponseDTO> registerUser(@Valid @RequestBody SignUpDTO signUpDTO) {
     if (userRepository.existsByEmail(signUpDTO.getEmail())) {
       throw new BadRequestException("Email address already in use.");
     }
@@ -63,12 +62,7 @@ public class AuthController {
       .email(signUpDTO.getEmail())
       .password(passwordEncoder.encode(signUpDTO.getPassword()))
       .build();
-    try {
-      userRepository.save(user);
-    } catch (Exception e) {
-      log.error("Error saving user: {}", e.getMessage());
-      throw new InternalServerException("Error saving user.");
-    }
+    userRepository.save(user);
     ApiResponseDTO response = ApiResponseDTO.builder()
       .success(true)
       .status(HttpStatus.CREATED.name())
