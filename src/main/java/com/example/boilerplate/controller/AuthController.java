@@ -1,16 +1,26 @@
 package com.example.boilerplate.controller;
 
+import com.example.boilerplate.dto.ApiResponseDTO;
 import com.example.boilerplate.dto.AuthorizationDTO;
 import com.example.boilerplate.dto.LoginDTO;
+import com.example.boilerplate.dto.SignUpDTO;
+import com.example.boilerplate.exception.BadRequestException;
+import com.example.boilerplate.exception.InternalServerException;
+import com.example.boilerplate.models.UserEntity;
+import com.example.boilerplate.repository.UserRepository;
 import com.example.boilerplate.security.TokenProvider;
+
 import javax.validation.Valid;
+
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +34,8 @@ public class AuthController {
 
   private final AuthenticationManager authenticationManager;
   private final TokenProvider tokenProvider;
+  private final UserRepository userRepository;
+  private final PasswordEncoder passwordEncoder;
 
   @PostMapping("/login")
   public ResponseEntity<?> authUser(@Valid @RequestBody LoginDTO loginDTO) {
@@ -38,6 +50,32 @@ public class AuthController {
       .accessToken(tokenProvider.create(loginDTO.getEmail()))
       .build();
     return ResponseEntity.ok(authorization);
+  }
+
+  @PostMapping("/signup")
+  public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpDTO signUpDTO) {
+    if (userRepository.existsByEmail(signUpDTO.getEmail())) {
+      throw new BadRequestException("Email address already in use.");
+    }
+    UserEntity user = UserEntity.builder()
+      .name(signUpDTO.getName())
+      .surname(signUpDTO.getSurname())
+      .email(signUpDTO.getEmail())
+      .password(passwordEncoder.encode(signUpDTO.getPassword()))
+      .build();
+    try {
+      userRepository.save(user);
+    } catch (Exception e) {
+      log.error("Error saving user: {}", e.getMessage());
+      throw new InternalServerException("Error saving user.");
+    }
+    ApiResponseDTO response = ApiResponseDTO.builder()
+      .success(true)
+      .status(HttpStatus.CREATED.name())
+      .statusCode(HttpStatus.CREATED.value())
+      .message("User registered successfully.")
+      .build();
+    return ResponseEntity.ok().body(response);
   }
 
 }

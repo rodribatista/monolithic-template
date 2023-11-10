@@ -6,7 +6,11 @@ import javax.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class LoginDTO {
+public class SignUpDTO {
+
+  private String name;
+
+  private String surname;
 
   @NotBlank
   @Email
