@@ -41,16 +41,31 @@ public class SecurityConfig {
   @Bean
   public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
     http
-      .cors()
-      .and()
-      .csrf().disable()
-      .sessionManagement().sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-      .and()
-      .formLogin().disable()
-      .httpBasic().disable()
-      .authorizeRequests()
-      .antMatchers("/auth/**").permitAll()
-      .anyRequest().authenticated();
+      .cors(
+        cors -> cors.configurationSource(
+          request -> {
+            var corsConfiguration = new org.springframework.web.cors.CorsConfiguration();
+            corsConfiguration.setAllowCredentials(true);
+            corsConfiguration.addAllowedOriginPattern("*");
+            corsConfiguration.addAllowedHeader("*");
+            corsConfiguration.addAllowedMethod("*");
+            corsConfiguration.setMaxAge(3600L);
+            return corsConfiguration;
+          }
+        )
+      )
+      .csrf(csrf -> csrf.disable())
+      .sessionManagement(
+        sessionManagement -> sessionManagement
+          .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+      )
+      .authorizeHttpRequests(
+        authorizeRequests -> authorizeRequests
+          .requestMatchers("/auth/**").permitAll()
+          .anyRequest().authenticated()
+      )
+      .formLogin(formLogin -> formLogin.disable())
+      .httpBasic(httpBasic -> httpBasic.disable());
     http.addFilterBefore(tokenAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
     return http.build();
   }

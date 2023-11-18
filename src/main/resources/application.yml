@@ -21,6 +21,6 @@ spring:
       mode: always
 app:
   auth:
-    issuer: monolith-boilerplate
+    issuer: monolithic-template
     tokenSecret: 6C9A981CC29478E7F282AA65AE3DF
     tokenExpirationMsec: 864000000

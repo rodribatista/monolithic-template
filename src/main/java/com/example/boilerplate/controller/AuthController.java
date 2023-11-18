@@ -9,7 +9,7 @@ import com.example.boilerplate.models.UserEntity;
 import com.example.boilerplate.repository.UserRepository;
 import com.example.boilerplate.security.TokenProvider;
 
-import javax.validation.Valid;
+import jakarta.validation.Valid;
 
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
