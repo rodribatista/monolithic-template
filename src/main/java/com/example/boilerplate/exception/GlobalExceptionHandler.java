@@ -1,6 +1,6 @@
 package com.example.boilerplate.exception;
 
-import com.example.boilerplate.dto.ErrorDTO;
+import com.example.boilerplate.dto.ErrorResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -25,7 +25,7 @@ public class GlobalExceptionHandler {
     if (e instanceof BadRequestException) {
       log.error("{} Bad request exception: {}", referenceCode, e.getMessage());
       return ResponseEntity.badRequest().body(
-        ErrorDTO.builder()
+        ErrorResponse.builder()
           .referenceCode(referenceCode)
           .status(HttpStatus.BAD_REQUEST.name())
           .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -36,7 +36,7 @@ public class GlobalExceptionHandler {
     } else if (e instanceof BadCredentialsException) {
       log.error("{} Bad credentials exception: {}", referenceCode, e.getMessage());
       return ResponseEntity.badRequest().body(
-        ErrorDTO.builder()
+        ErrorResponse.builder()
           .referenceCode(referenceCode)
           .status(HttpStatus.BAD_REQUEST.name())
           .statusCode(HttpStatus.BAD_REQUEST.value())
@@ -47,7 +47,7 @@ public class GlobalExceptionHandler {
     } else if (e instanceof ResourceNotFoundException){
       log.error("{} Resource not found exception: {}", referenceCode, e.getMessage());
       return new ResponseEntity<>(
-        ErrorDTO.builder()
+        ErrorResponse.builder()
           .referenceCode(referenceCode)
           .status(HttpStatus.NOT_FOUND.name())
           .statusCode(HttpStatus.NOT_FOUND.value())
@@ -58,7 +58,7 @@ public class GlobalExceptionHandler {
     }
     log.error("{} Internal server error: {}", referenceCode, e.getMessage());
     return ResponseEntity.internalServerError().body(
-      ErrorDTO.builder()
+      ErrorResponse.builder()
           .referenceCode(referenceCode)
           .status(HttpStatus.INTERNAL_SERVER_ERROR.name())
           .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
@@ -73,7 +73,7 @@ public class GlobalExceptionHandler {
     String referenceCode = UUID.randomUUID().toString();
     log.error("{} Internal server error: {}", referenceCode, e.getMessage());
     return ResponseEntity.internalServerError().body(
-      ErrorDTO.builder()
+      ErrorResponse.builder()
           .referenceCode(referenceCode)
           .status(HttpStatus.INTERNAL_SERVER_ERROR.name())
           .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())

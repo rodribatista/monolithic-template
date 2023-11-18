@@ -5,6 +5,6 @@ import lombok.Data;
 
 @Data
 @Builder
-public class AuthorizationDTO {
+public class TokenResponse {
   private String accessToken;
 }

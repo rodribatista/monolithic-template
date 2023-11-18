@@ -6,7 +6,7 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.Getter;
 
 @Getter
-public class SignUpDTO {
+public class SignUpRequest {
 
   private String name;
 

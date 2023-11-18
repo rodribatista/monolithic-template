@@ -7,7 +7,7 @@ import java.io.Serializable;
 
 @Data
 @Builder
-public class ErrorDTO implements Serializable {
+public class ErrorResponse implements Serializable {
   private String referenceCode;
   private String status;
   private int statusCode;
