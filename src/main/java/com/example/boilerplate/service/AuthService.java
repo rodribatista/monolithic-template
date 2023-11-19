@@ -53,7 +53,9 @@ public class AuthService {
       .surname(signUpDTO.getSurname())
       .email(signUpDTO.getEmail())
       .password(passwordEncoder.encode(signUpDTO.getPassword()))
-      .roles(new HashSet<>(Collections.singletonList(roleRepository.findByName("USER"))))
+      .roles(new HashSet<>(
+        // Asignar roles al usuario que se crea en el registro
+        Collections.singletonList(roleRepository.findByName("USER"))))
       .build();
     try {
       user = userRepository.save(user);
