@@ -6,8 +6,10 @@ import com.example.boilerplate.dto.SignUpRequest;
 import com.example.boilerplate.dto.TokenResponse;
 import com.example.boilerplate.exception.BadRequestException;
 import com.example.boilerplate.models.UserEntity;
+import com.example.boilerplate.repository.RoleRepository;
 import com.example.boilerplate.repository.UserRepository;
 import com.example.boilerplate.security.TokenProvider;
+import com.example.boilerplate.security.UserPrincipal;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -17,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
+import java.util.*;
+
 @AllArgsConstructor
 @Service
 public class AuthService {
@@ -25,6 +29,7 @@ public class AuthService {
   private final TokenProvider tokenProvider;
   private final UserRepository userRepository;
   private final PasswordEncoder passwordEncoder;
+  private final RoleRepository roleRepository;
 
   public TokenResponse authUser(LoginRequest loginDTO) {
     Authentication authentication = authenticationManager.authenticate(
@@ -34,10 +39,8 @@ public class AuthService {
       )
     );
     SecurityContextHolder.getContext().setAuthentication(authentication);
-    String userId = userRepository.findByEmail(loginDTO.getEmail())
-      .orElse(null).getId();
     return TokenResponse.builder()
-      .accessToken(tokenProvider.create(userId))
+      .accessToken(tokenProvider.create((UserPrincipal) authentication.getPrincipal()))
       .build();
   }
 
@@ -50,8 +53,13 @@ public class AuthService {
       .surname(signUpDTO.getSurname())
       .email(signUpDTO.getEmail())
       .password(passwordEncoder.encode(signUpDTO.getPassword()))
+      .roles(new HashSet<>(Collections.singletonList(roleRepository.findByName("USER"))))
       .build();
-    userRepository.save(user);
+    try {
+      user = userRepository.save(user);
+    } catch (Exception e) {
+      throw new RuntimeException("User could not be saved.");
+    }
     return ApiResponse.builder()
       .success(true)
       .status(HttpStatus.CREATED.name())

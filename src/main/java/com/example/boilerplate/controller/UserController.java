@@ -1,11 +1,11 @@
 package com.example.boilerplate.controller;
 
-import com.example.boilerplate.exception.ResourceNotFoundException;
+import com.example.boilerplate.exception.BadRequestException;
 import com.example.boilerplate.models.UserEntity;
 import com.example.boilerplate.repository.UserRepository;
-import com.example.boilerplate.security.TokenProvider;
+import com.example.boilerplate.security.UserPrincipal;
 import lombok.AllArgsConstructor;
-import org.springframework.security.core.Authentication;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -16,12 +16,11 @@ import org.springframework.web.bind.annotation.RestController;
 public class UserController {
 
   private UserRepository userRepository;
-  private TokenProvider tokenProvider;
 
   @GetMapping("/me")
-  public UserEntity getCurrentUserEntity(Authentication authentication) {
-    return userRepository.findByEmail(authentication.getName())
-      .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + authentication.getName()));
+  public UserEntity getCurrentUserEntity(@AuthenticationPrincipal UserPrincipal userPrincipal) {
+    return userRepository.findByEmail(userPrincipal.getEmail())
+      .orElseThrow(() -> new BadRequestException(String.format("Not existing user with email: %s", userPrincipal.getEmail())));
   }
 
 }

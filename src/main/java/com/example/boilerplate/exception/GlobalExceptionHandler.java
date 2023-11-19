@@ -10,6 +10,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import jakarta.servlet.http.HttpServletRequest;
+
 import java.util.UUID;
 
 @AllArgsConstructor
@@ -44,7 +45,7 @@ public class GlobalExceptionHandler {
           .requestMethod(req.getMethod())
           .requestUrl(String.valueOf(req.getRequestURL()))
           .build());
-    } else if (e instanceof ResourceNotFoundException){
+    } else if (e instanceof ResourceNotFoundException) {
       log.error("{} Resource not found exception: {}", referenceCode, e.getMessage());
       return new ResponseEntity<>(
         ErrorResponse.builder()
@@ -59,13 +60,13 @@ public class GlobalExceptionHandler {
     log.error("{} Internal server error: {}", referenceCode, e.getMessage());
     return ResponseEntity.internalServerError().body(
       ErrorResponse.builder()
-          .referenceCode(referenceCode)
-          .status(HttpStatus.INTERNAL_SERVER_ERROR.name())
-          .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-          .message(INTERNAL_SERVER_ERROR_MESSAGE)
-          .requestMethod(req.getMethod())
-          .requestUrl(String.valueOf(req.getRequestURL()))
-          .build());
+        .referenceCode(referenceCode)
+        .status(HttpStatus.INTERNAL_SERVER_ERROR.name())
+        .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+        .message(INTERNAL_SERVER_ERROR_MESSAGE)
+        .requestMethod(req.getMethod())
+        .requestUrl(String.valueOf(req.getRequestURL()))
+        .build());
   }
 
   @ExceptionHandler(Exception.class)
@@ -74,13 +75,13 @@ public class GlobalExceptionHandler {
     log.error("{} Internal server error: {}", referenceCode, e.getMessage());
     return ResponseEntity.internalServerError().body(
       ErrorResponse.builder()
-          .referenceCode(referenceCode)
-          .status(HttpStatus.INTERNAL_SERVER_ERROR.name())
-          .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-          .message(INTERNAL_SERVER_ERROR_MESSAGE)
-          .requestMethod(req.getMethod())
-          .requestUrl(String.valueOf(req.getRequestURL()))
-          .build());
+        .referenceCode(referenceCode)
+        .status(HttpStatus.INTERNAL_SERVER_ERROR.name())
+        .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
+        .message(INTERNAL_SERVER_ERROR_MESSAGE)
+        .requestMethod(req.getMethod())
+        .requestUrl(String.valueOf(req.getRequestURL()))
+        .build());
   }
 
 }

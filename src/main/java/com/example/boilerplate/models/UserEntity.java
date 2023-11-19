@@ -6,7 +6,10 @@ import org.hibernate.annotations.GenericGenerator;
 
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
+
 import java.io.Serializable;
+import java.util.HashSet;
+import java.util.Set;
 
 @AllArgsConstructor
 @NoArgsConstructor
@@ -40,5 +43,17 @@ public class UserEntity implements Serializable {
   @Column(nullable = false,
     columnDefinition = "VARCHAR(100)")
   private String password;
+
+  @ManyToMany(
+    fetch = FetchType.EAGER,
+    cascade = {
+      CascadeType.DETACH,
+      CascadeType.MERGE,
+      CascadeType.REFRESH
+    })
+  @JoinTable(name = "USERS_ROLES",
+    joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
+    inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
+  private Set<RoleEntity> roles = new HashSet();
 
 }

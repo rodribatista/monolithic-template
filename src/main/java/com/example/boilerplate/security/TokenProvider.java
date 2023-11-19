@@ -12,6 +12,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -25,16 +26,20 @@ public class TokenProvider {
     this.signAlgorithm = Algorithm.HMAC512(appProperties.getAuth().tokenSecret());
   }
 
-  public String create(String id) {
+  public String create(UserPrincipal userPrincipal) {
     Date now = new Date();
     Date expiryDate = new Date(now.getTime() + appProperties.getAuth().tokenExpirationMsec());
+    String authorities = userPrincipal.getAuthorities().stream()
+      .map(authority -> authority.getAuthority())
+      .collect(Collectors.joining(";"));
     String token = null;
     try {
       token = JWT.create()
         .withIssuer(appProperties.getAuth().issuer())
         .withIssuedAt(now)
-        .withExpiresAt(expiryDate) // TODO Set expiration date
-        .withClaim("usr", id)
+        .withExpiresAt(expiryDate)
+        .withClaim("user", userPrincipal.getId())
+        .withClaim("auth", authorities)
         .sign(signAlgorithm);
     } catch (JWTCreationException exception) {
       log.error("Claims couldn't be converted to JSON.");
@@ -48,7 +53,8 @@ public class TokenProvider {
         .withIssuer(appProperties.getAuth().issuer())
         .withClaimPresence("iat")
         .withClaimPresence("exp")
-        .withClaimPresence("usr")
+        .withClaimPresence("user")
+        .withClaimPresence("auth")
         .build();
       verifier.verify(token);
       return true;
@@ -65,7 +71,7 @@ public class TokenProvider {
     } catch (JWTDecodeException exception) {
       log.error("Invalid token.");
     }
-    return jwt.getClaim("usr").asString();
+    return jwt.getClaim("user").asString();
   }
 
 }
