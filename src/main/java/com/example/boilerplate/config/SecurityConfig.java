@@ -1,5 +1,6 @@
 package com.example.boilerplate.config;
 
+import com.example.boilerplate.security.AccessDeniedHandler;
 import com.example.boilerplate.security.TokenAuthProvider;
 import com.example.boilerplate.security.TokenAuthFilter;
 import lombok.AllArgsConstructor;
@@ -12,6 +13,7 @@ import org.springframework.security.config.annotation.method.configuration.Enabl
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
+import org.springframework.security.web.AuthenticationEntryPoint;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -23,6 +25,8 @@ public class SecurityConfig {
 
   private final TokenAuthFilter tokenAuthenticationFilter;
   private final TokenAuthProvider tokenAuthenticationProvider;
+  private final AuthenticationEntryPoint authenticationEntryPoint;
+  private final AccessDeniedHandler accessDeniedHandler;
 
   @Bean(BeanIds.AUTHENTICATION_MANAGER)
   public AuthenticationManager authenticationManager(
@@ -50,17 +54,18 @@ public class SecurityConfig {
       .csrf(csrf -> csrf.disable())
       .sessionManagement(
         sessionManagement -> sessionManagement
-          .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-      )
+          .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
       .addFilterBefore(
         tokenAuthenticationFilter,
-        UsernamePasswordAuthenticationFilter.class
-      )
+        UsernamePasswordAuthenticationFilter.class)
       .authorizeHttpRequests(
         authorizeRequests -> authorizeRequests
           .requestMatchers("/auth/**").permitAll()
-          .anyRequest().authenticated()
-      )
+          .anyRequest().authenticated())
+      .exceptionHandling(
+        exceptionHandling -> exceptionHandling
+          .authenticationEntryPoint(authenticationEntryPoint)
+          .accessDeniedHandler(accessDeniedHandler))
       .authenticationProvider(tokenAuthenticationProvider)
       .formLogin(formLogin -> formLogin.disable())
       .httpBasic(httpBasic -> httpBasic.disable());
