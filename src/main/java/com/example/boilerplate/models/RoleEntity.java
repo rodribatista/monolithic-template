@@ -20,8 +20,7 @@ import java.util.Set;
 public class RoleEntity implements Serializable {
 
   @Id
-  @GeneratedValue(generator = "uuid")
-  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  @GeneratedValue(strategy = GenerationType.UUID)
   @Column(columnDefinition = "VARCHAR(50)")
   private String id;
 

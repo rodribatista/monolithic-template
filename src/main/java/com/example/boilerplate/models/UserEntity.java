@@ -23,8 +23,7 @@ import java.util.Set;
 public class UserEntity implements Serializable {
 
   @Id
-  @GeneratedValue(generator = "uuid")
-  @GenericGenerator(name = "uuid", strategy = "uuid2")
+  @GeneratedValue(strategy = GenerationType.UUID)
   @Column(columnDefinition = "VARCHAR(50)")
   private String id;
 
@@ -54,6 +53,6 @@ public class UserEntity implements Serializable {
   @JoinTable(name = "USERS_ROLES",
     joinColumns = @JoinColumn(name = "user_id", referencedColumnName = "id"),
     inverseJoinColumns = @JoinColumn(name = "role_id", referencedColumnName = "id"))
-  private Set<RoleEntity> roles = new HashSet();
+  private Set<RoleEntity> roles = new HashSet<>();
 
 }
