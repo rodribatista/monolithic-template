@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -21,8 +22,8 @@ public class GlobalExceptionHandler {
 
   private static String INTERNAL_SERVER_ERROR_MESSAGE = "An internal server error occured.";
 
-  @ExceptionHandler(RuntimeException.class)
-  public ResponseEntity<?> runtimeExceptionHandler(RuntimeException e, HttpServletRequest req) {
+  @ExceptionHandler(Exception.class)
+  public ResponseEntity<?> exceptionHandler(Exception e, HttpServletRequest req) {
     String referenceCode = UUID.randomUUID().toString();
     if (e instanceof UsernameNotFoundException) {
       log.error("{} Username not found exception exception: {}", referenceCode, e.getMessage());
@@ -68,23 +69,20 @@ public class GlobalExceptionHandler {
           .requestMethod(req.getMethod())
           .requestUrl(String.valueOf(req.getRequestURL()))
           .build(), HttpStatus.NOT_FOUND);
+    } else if (e instanceof AccessDeniedException) {
+      log.error("{} Access denied exception: {}", referenceCode, e.getMessage());
+      return new ResponseEntity<>(
+        ErrorResponse.builder()
+          .referenceCode(referenceCode)
+          .status(HttpStatus.UNAUTHORIZED.name())
+          .statusCode(HttpStatus.UNAUTHORIZED.value())
+          .message(e.getMessage())
+          .requestMethod(req.getMethod())
+          .requestUrl(String.valueOf(req.getRequestURL()))
+          .build(), HttpStatus.UNAUTHORIZED);
     }
     log.error("{} Internal server error: {}", referenceCode, e.getMessage());
-    return ResponseEntity.internalServerError().body(
-      ErrorResponse.builder()
-        .referenceCode(referenceCode)
-        .status(HttpStatus.INTERNAL_SERVER_ERROR.name())
-        .statusCode(HttpStatus.INTERNAL_SERVER_ERROR.value())
-        .message(INTERNAL_SERVER_ERROR_MESSAGE)
-        .requestMethod(req.getMethod())
-        .requestUrl(String.valueOf(req.getRequestURL()))
-        .build());
-  }
-
-  @ExceptionHandler(Exception.class)
-  public ResponseEntity<?> exceptionHandler(Exception e, HttpServletRequest req) {
-    String referenceCode = UUID.randomUUID().toString();
-    log.error("{} Internal server error: {}", referenceCode, e.getMessage());
+    e.printStackTrace();
     return ResponseEntity.internalServerError().body(
       ErrorResponse.builder()
         .referenceCode(referenceCode)
