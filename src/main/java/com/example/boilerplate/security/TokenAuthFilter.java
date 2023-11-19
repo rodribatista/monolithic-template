@@ -23,7 +23,7 @@ import java.io.IOException;
 @AllArgsConstructor
 @Slf4j
 @Component
-public class TokenAuthenticationFilter extends OncePerRequestFilter {
+public class TokenAuthFilter extends OncePerRequestFilter {
 
   private final TokenProvider tokenProvider;
   private final UserRepository userRepository;

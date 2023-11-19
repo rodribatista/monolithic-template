@@ -6,6 +6,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
@@ -23,7 +24,18 @@ public class GlobalExceptionHandler {
   @ExceptionHandler(RuntimeException.class)
   public ResponseEntity<?> runtimeExceptionHandler(RuntimeException e, HttpServletRequest req) {
     String referenceCode = UUID.randomUUID().toString();
-    if (e instanceof BadRequestException) {
+    if (e instanceof UsernameNotFoundException) {
+      log.error("{} Username not found exception exception: {}", referenceCode, e.getMessage());
+      return ResponseEntity.badRequest().body(
+        ErrorResponse.builder()
+          .referenceCode(referenceCode)
+          .status(HttpStatus.BAD_REQUEST.name())
+          .statusCode(HttpStatus.BAD_REQUEST.value())
+          .message(e.getMessage())
+          .requestMethod(req.getMethod())
+          .requestUrl(String.valueOf(req.getRequestURL()))
+          .build());
+    } else if (e instanceof BadRequestException) {
       log.error("{} Bad request exception: {}", referenceCode, e.getMessage());
       return ResponseEntity.badRequest().body(
         ErrorResponse.builder()
