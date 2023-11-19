@@ -1,6 +1,6 @@
 package com.example.boilerplate.security;
 
-import com.example.boilerplate.exception.BadRequestException;
+import com.example.boilerplate.models.UserEntity;
 import com.example.boilerplate.repository.UserRepository;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -38,9 +38,12 @@ public class TokenAuthFilter extends OncePerRequestFilter {
     try {
       String jwt = getJwtFromRequest(request);
       if (StringUtils.hasText(jwt) && tokenProvider.validate(jwt)) {
-        String username = userRepository.findById(tokenProvider.getUserId(jwt)).orElseThrow(
-          () -> new BadRequestException(String.format("Not existing user with id: %s", tokenProvider.getUserId(jwt)))).getEmail();
-        UserDetails userDetails = userDetailsService.loadUserByUsername(username);
+        UserEntity user = userRepository.findById(tokenProvider.getUserId(jwt)).orElse(null);
+        if (user == null) {
+          log.error("Sent a invalid user id in token.");
+          return;
+        }
+        UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
         UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
         authentication.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
         SecurityContextHolder.getContext().setAuthentication(authentication);

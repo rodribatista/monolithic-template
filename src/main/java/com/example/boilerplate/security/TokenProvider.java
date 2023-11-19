@@ -59,19 +59,13 @@ public class TokenProvider {
       verifier.verify(token);
       return true;
     } catch (JWTVerificationException exception) {
-      log.error("Invalid token.");
+      log.error("Sent a invalid token.");
     }
     return false;
   }
 
   public String getUserId(String token) {
-    DecodedJWT jwt = null;
-    try {
-      jwt = JWT.decode(token);
-    } catch (JWTDecodeException exception) {
-      log.error("Invalid token.");
-    }
-    return jwt.getClaim("user").asString();
+    return JWT.decode(token).getClaim("user").asString();
   }
 
 }
